@@ -1,6 +1,6 @@
-class Play extends Phaser.Scene {
+class Play01 extends Phaser.Scene {
     constructor () {
-        super("playScene");
+        super("playScene1");
     }
 
     preload() {
@@ -12,6 +12,8 @@ class Play extends Phaser.Scene {
     }
 
     create() {
+        score1 = 0;
+        score2 = 0;
         // reserve keyboard vars
         
         //this.add.text(20, 20, "Rocket Patrol Play");
@@ -39,6 +41,7 @@ class Play extends Phaser.Scene {
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        
         this.anims.create({
             key: 'explode',
             frames: this.anims.generateFrameNumbers('explosion', {start: 0, end: 9, first: 0}),
@@ -58,16 +61,16 @@ class Play extends Phaser.Scene {
             },
             fixedWidth: 100
         }
-        this.add.text(475, 54, "FIRE", scoreConfig);
         this.scoreLeft = this.add.text(69, 54, this.p1Score, scoreConfig);
         this.scoreMiddle = this.add.text(280, 54, hScore, scoreConfig);
+        this.scoreRight = this.add.text(475, 54, score2, scoreConfig);
         this.gameOver = false;
         scoreConfig.fixedWidth = 0;
         // 60-second play clock
         
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
             this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5);
-            this.add.text(game.config.width/2, game.config.height/2 + 64, '(F)ire to Restart or ← for Menu', scoreConfig).setOrigin(0.5);
+            this.add.text(game.config.width/2, game.config.height/2 + 64, '(F)ire to switch to player2', scoreConfig).setOrigin(0.5);
             this.gameOver = true;
         }, null, this);
     }
@@ -75,13 +78,14 @@ class Play extends Phaser.Scene {
     update() {
         // check key input for restart
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyF)) {
-            this.scene.restart(this.p1Score);
+            score1 = this.p1Score;
+            this.scene.start('playScene2');
         }
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
             this.scene.start("menuScene");
         }
         this.starfield.tilePositionX -= 4;
-        
+
         if (!this.gameOver) {
             // update rocket
             this.p1Rocket.update();

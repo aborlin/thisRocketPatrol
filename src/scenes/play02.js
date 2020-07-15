@@ -1,6 +1,6 @@
-class Play extends Phaser.Scene {
+class Play02 extends Phaser.Scene {
     constructor () {
-        super("playScene");
+        super("playScene2");
     }
 
     preload() {
@@ -44,7 +44,7 @@ class Play extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers('explosion', {start: 0, end: 9, first: 0}),
             frameRate: 30
         });
-        this.p1Score = 0;
+        this.p2Score = 0;
         // score display
         let scoreConfig = {
             fontFamily: 'Courier',
@@ -58,16 +58,23 @@ class Play extends Phaser.Scene {
             },
             fixedWidth: 100
         }
-        this.add.text(475, 54, "FIRE", scoreConfig);
-        this.scoreLeft = this.add.text(69, 54, this.p1Score, scoreConfig);
-        this.scoreMiddle = this.add.text(280, 54, hScore, scoreConfig);
+        this.scoreLeft = this.add.text(69, 54, score1, scoreConfig);
+        this.scoreMiddle = this.add.text(300, 54, hScore, scoreConfig);
+        this.scoreRight = this.add.text(475, 54, this.p2Score, scoreConfig);
         this.gameOver = false;
         scoreConfig.fixedWidth = 0;
         // 60-second play clock
         
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
             this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5);
-            this.add.text(game.config.width/2, game.config.height/2 + 64, '(F)ire to Restart or ← for Menu', scoreConfig).setOrigin(0.5);
+            if (this.p2Score > score1) {
+                this.add.text(game.config.width/2, game.config.height/2 + 64, 'Player 2 wins', scoreConfig).setOrigin(0.5);
+            } else if (this.p2Score < score1) {
+                this.add.text(game.config.width/2, game.config.height/2 + 64, 'Player 1 wins', scoreConfig).setOrigin(0.5);
+            } else {
+                this.add.text(game.config.width/2, game.config.height/2 + 64, 'Tie game', scoreConfig).setOrigin(0.5);
+            }
+            this.add.text(game.config.width/2, game.config.height/2 + 2*64, '(F)ire to Restart or ← for Menu', scoreConfig).setOrigin(0.5);
             this.gameOver = true;
         }, null, this);
     }
@@ -75,13 +82,13 @@ class Play extends Phaser.Scene {
     update() {
         // check key input for restart
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyF)) {
-            this.scene.restart(this.p1Score);
+            this.scene.start('playScene1');
         }
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
             this.scene.start("menuScene");
         }
         this.starfield.tilePositionX -= 4;
-        
+
         if (!this.gameOver) {
             // update rocket
             this.p1Rocket.update();
@@ -137,10 +144,10 @@ class Play extends Phaser.Scene {
             boom.destroy();
         });
         // score increment and repaint
-        this.p1Score += ship.points;
-        this.scoreLeft.text = this.p1Score;
-        if (this.p1Score > hScore) {
-            hScore = this.p1Score;
+        this.p2Score += ship.points;
+        this.scoreRight.text = this.p2Score;
+        if (this.p2Score > hScore) {
+            hScore = this.p2Score;
             this.scoreMiddle.text = hScore;
             console.log('new high is: ' + hScore);
         }
